@@ -1,11 +1,14 @@
+# colcon/ROS2 构建产物与日志（不应提交到仓库）
 build/
 install/
 log/
 .colcon/
 
+# Python 缓存
 __pycache__/
 *.pyc
 
+# 常见 IDE/系统文件
 .vscode/
 .idea/
 .DS_Store
