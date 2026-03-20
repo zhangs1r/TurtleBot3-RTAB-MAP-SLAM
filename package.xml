@@ -4,8 +4,8 @@
   <name>turtlebot3_RTABSLAM</name>
   <version>0.0.1</version>
   <description>RTAB-MAP SLAM with RPLIDAR A2M12 and RealSense D435i on TurtleBot3</description>
-  <maintainer email="user@todo.todo">User</maintainer>
-  <license>TODO: License declaration</license>
+  <maintainer email="user@todo.todo">TurtleBot3 RTAB-MAP SLAM User</maintainer>
+  <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 

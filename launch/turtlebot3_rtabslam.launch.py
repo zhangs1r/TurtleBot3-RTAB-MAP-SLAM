@@ -16,7 +16,7 @@ TurtleBot3 + RTAB-Map + Nav2 的顶层启动入口。
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -47,6 +47,11 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration('use_rviz', default='true')
     use_rtabmap_viz = LaunchConfiguration('use_rtabmap_viz', default='false')
     localization = LaunchConfiguration('localization', default='false')
+    map_yaml_file = LaunchConfiguration('map', default=PathJoinSubstitution([
+        FindPackageShare('turtlebot3_RTABSLAM'),
+        'maps',
+        'map.yaml'
+    ]))
     
     declare_use_sensors = DeclareLaunchArgument(
         'use_sensors',
@@ -70,6 +75,12 @@ def generate_launch_description():
         'localization',
         default_value='false',
         description='是否为定位模式 (true=定位, false=建图)'
+    )
+
+    declare_map = DeclareLaunchArgument(
+        'map',
+        default_value=map_yaml_file,
+        description='静态地图 YAML 文件的完整路径'
     )
     
     # 底盘与模型：
@@ -99,8 +110,8 @@ def generate_launch_description():
     )
     
     # SLAM / 定位：
-    # rtabmap.launch.py 会根据 localization 参数决定使用“增量建图”还是“重定位”模式。
-    # 注意：该子 launch 强制 namespace='rtabmap'，因此相关话题通常在 /rtabmap/*。
+    # 当 localization=false 时，启动 RTAB-Map 建图。
+    # 当 localization=true 时，启动基于 Map Server + AMCL 的定位。
     rtabmap_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
@@ -109,7 +120,24 @@ def generate_launch_description():
                 'rtabmap.launch.py'
             ])
         ]),
+        condition=UnlessCondition(localization),
         launch_arguments={'localization': localization}.items()
+    )
+    
+    localization_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('turtlebot3_RTABSLAM'),
+                'launch',
+                'localization.launch.py'
+            ])
+        ]),
+        condition=IfCondition(localization),
+        launch_arguments={
+             'use_sim_time': 'false',
+             'autostart': 'true',
+             'map': map_yaml_file,
+         }.items()
     )
     
     # 导航：
@@ -181,9 +209,11 @@ def generate_launch_description():
         declare_use_rviz,
         declare_use_rtabmap_viz,
         declare_localization,
+        declare_map,
         bringup_launch,
         sensors_launch,
         rtabmap_launch,
+        localization_launch,
         navigation_launch,
         goal_pose_to_nav2_node,
         rtabmap_viz_node,

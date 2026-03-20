@@ -17,6 +17,7 @@ install(DIRECTORY
   launch
   config
   scripts
+  maps
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -4,6 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Map1
+        - /Map1/Topic1
+        - /Map1/Update Topic1
         - /Camera1
       Splitter Ratio: 0.5
     Tree Height: 487
@@ -12,6 +15,7 @@ Panels:
   - Class: rviz_common/Tool Properties
     Expanded:
       - /Publish Point1
+      - /2D Pose Estimate1
     Name: Tool Properties
     Splitter Ratio: 0.5886790156364441
   - Class: rviz_common/Views
@@ -170,8 +174,6 @@ Visualization Manager:
           Value: true
         imu_link:
           Value: true
-        map:
-          Value: true
         odom:
           Value: true
         wheel_left_link:
@@ -184,36 +186,7 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        map:
-          odom:
-            base_footprint:
-              base_link:
-                caster_back_link:
-                  {}
-                imu_link:
-                  {}
-                wheel_left_link:
-                  {}
-                wheel_right_link:
-                  {}
-              base_scan:
-                {}
-              camera_link:
-                camera_accel_frame:
-                  camera_accel_optical_frame:
-                    {}
-                camera_color_frame:
-                  camera_color_optical_frame:
-                    {}
-                camera_depth_frame:
-                  camera_depth_optical_frame:
-                    {}
-                camera_gyro_frame:
-                  camera_gyro_optical_frame:
-                    {}
-                  camera_imu_frame:
-                    camera_imu_optical_frame:
-                      {}
+        {}
       Update Interval: 0
       Value: true
     - Alpha: 0.699999988079071
@@ -224,14 +197,14 @@ Visualization Manager:
       Name: Map
       Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /rtabmap/map
       Update Topic:
         Depth: 5
-        Durability Policy: Volatile
+        Durability Policy: Transient Local
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /rtabmap/map_updates
@@ -417,6 +390,16 @@ Visualization Manager:
         Value: /clicked_point
     - Class: rviz_default_plugins/Interact
       Hide Inactive Objects: true
+    - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: initialpose
   Transformation:
     Current:
       Class: rviz_default_plugins/TF
@@ -424,16 +407,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 7.958012580871582
+      Distance: 6.162684440612793
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.5835668444633484
-        Y: -0.0746362954378128
-        Z: 1.392035961151123
+        X: 1.350905418395996
+        Y: 0.15178093314170837
+        Z: 1.4249982833862305
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false

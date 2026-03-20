@@ -1,13 +1,16 @@
-# TurtleBot3 RTAB-MAP SLAM
+# TurtleBot3 RTAB-MAP SLAM 🚀
+
+[![ROS 2](https://img.shields.io/badge/ROS-Humble-blue)](https://docs.ros.org/en/humble/index.html)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## 📌 项目简介
 
-本项目（`turtlebot3_RTABSLAM`）是面向 TurtleBot3 Burger 的 RTAB-Map（ROS 2 Humble）建图配置，组合使用：
+本项目（`turtlebot3_RTABSLAM`）是专为 TurtleBot3 Burger 打造的 RTAB-Map (ROS 2 Humble) SLAM 方案，集成了：
 
-- **RPLIDAR A2M12**：提供 2D 激光用于生成占据栅格与约束位姿
-- **Intel RealSense D435i**：提供 RGB-D 用于生成彩色 3D 点云地图与回环检测
+- **RPLIDAR A2M12**：提供高精度的 2D 激光扫描，用于构建占据栅格地图与位姿图优化 🛰️
+- **Intel RealSense D435i**：提供 RGB-D 数据，生成彩色 3D 点云地图并实现视觉回环检测 📷
 
-默认策略是“2D 导航友好 + 3D 可视化/建模”：2D `/rtabmap/map` 用于导航链路，3D 点云通过 `/rtabmap/cloud_map` 展示与导出 🧭
+**设计思路**：采用“2D 导航 + 3D 建模”双路策略，确保机器人能够在 2D 栅格地图上稳定导航的同时，通过 3D 点云提供丰富的环境可视化效果。🧭
 
 ## 文件与架构说明
 
@@ -41,7 +44,8 @@
 
 1. **安装依赖**
    ```bash
-   sudo apt install ros-humble-rtabmap-ros ros-humble-realsense2-camera ros-humble-rplidar-ros
+   sudo apt install ros-humble-rtabmap-ros ros-humble-realsense2-camera ros-humble-rplidar-ros \
+                    ros-humble-nav2-map-server ros-humble-nav2-amcl ros-humble-nav2-lifecycle-manager
    ```
 2. **编译工作空间**
    ```bash
@@ -74,20 +78,27 @@ ros2 launch turtlebot3_RTABSLAM turtlebot3_rtabslam.launch.py localization:=fals
 ```
 
 - **操作**：使用键盘遥控机器人移动，直到地图构建完整。
-- **保存**：直接 Ctrl+C 终止程序，RTAB-Map 会自动保存地图数据库到 `~/.ros/rtabmap.db`。
+- **保存数据库**：直接 Ctrl+C 终止程序，RTAB-Map 会自动保存地图数据库到 `~/.ros/rtabmap.db`。
+- **保存 2D 静态地图**：如果您想导出 2D 栅格地图供 AMCL 定位使用，请在建图运行期间执行：
+  ```bash
+  ros2 run nav2_map_server map_saver_cli -f ~/turtlebot3_ws/src/turtlebot3_RTABSLAM/maps/map --ros-args -p map_subscribe_transient_local:=true -r /map:=/rtabmap/map
+  ```
 
 #### **场景 B：定位导航模式 (Localization)**
 
-加载已有地图数据库 (`~/.ros/rtabmap.db`)，进行纯定位与导航。不会修改已有地图。
+加载静态地图并使用 **AMCL** 进行定位导航。此模式下不会修改已有地图，适合在已知环境中进行精确移动。
 
 ```bash
 export TURTLEBOT3_MODEL=burger
+# 默认使用项目 maps/ 目录下的地图
 ros2 launch turtlebot3_RTABSLAM turtlebot3_rtabslam.launch.py localization:=true
+# 或者手动指定地图路径
+ros2 launch turtlebot3_RTABSLAM turtlebot3_rtabslam.launch.py localization:=true map:=/your/path/to/map.yaml
 ```
 
 - **操作**：
-  1. 启动后，在 RViz 中观察机器人位置。如果位置不准，先遥控机器人原地转一转，协助 RTAB-Map 进行闭环检测（Loop Closure）以修正位姿。
-  2. 待 TF 树连通且定位稳定后，使用 RViz 的 **“2D Nav Goal / Set Goal”** 工具设置目标点。
+  1. 启动后，在 RViz 中观察机器人位置。如果位置不准，点击 RViz 顶部的 **"2D Pose Estimate"** 在地图上标出机器人的初始位姿。
+  2. 待定位稳定后，使用 RViz 的 **“2D Nav Goal / Set Goal”** 工具设置目标点。
   3. 本项目会将 RViz 发布的 `/goal_pose` 自动转发为 Nav2 的 `NavigateToPose` Action，请求机器人规划并导航到目标点。
 
 ### 2. 启动键盘控制（终端 2）
